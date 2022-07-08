@@ -12,6 +12,14 @@ namespace Emby.Plugins.AniSearch
 {
     public class Plugin : BasePlugin, IHasWebPages, IHasThumbImage
     {
+        public ILogger Logger { get; private set; }
+
+        public Plugin(ILogManager logManager)
+        {
+            Instance = this;
+            Logger = logManager.GetLogger(Name);
+        }
+
         public override string Name
         {
             get { return "AniSearch"; }
@@ -24,7 +32,7 @@ namespace Emby.Plugins.AniSearch
             return Array.Empty<PluginPageInfo>();
         }
 
-        private Guid _id = new Guid("94EA0CCA-4B61-417F-ABBD-192B9E52D8DF");
+        private Guid _id = new Guid("99149DF3-8668-40D8-8AA3-49A40B9B5A9B");
 
         public override Guid Id
         {

@@ -47,22 +47,23 @@ namespace Emby.Plugins.AniSearch
 
             if (!string.IsNullOrEmpty(aid))
             {
+                _log.Info("AniSearch search by aid {0}", aid);
                 string WebContent = await _api.WebRequestAPI(Api.AniSearch_anime_link + aid, cancellationToken).ConfigureAwait(false);
                 result.Item = new Series();
                 result.HasMetadata = true;
 
                 result.Item.SetProviderId(ProviderNames.AniSearch, aid);
-                result.Item.Overview = Api.Get_Overview(WebContent);
+                result.Item.Overview = _api.Get_Overview(WebContent);
                 try
                 {
                     //AniSearch has a max rating of 5
-                    result.Item.CommunityRating = (float.Parse(Api.Get_Rating(WebContent), System.Globalization.CultureInfo.InvariantCulture) * 2);
+                    result.Item.CommunityRating = (float.Parse(_api.Get_Rating(WebContent), System.Globalization.CultureInfo.InvariantCulture) * 2);
                 }
                 catch (Exception) { }
-                foreach (var genre in Api.Get_Genre(WebContent))
+                foreach (var genre in _api.Get_Genre(WebContent))
                     result.Item.AddGenre(genre);
                 GenreHelper.CleanupGenres(result.Item);
-                StoreImageUrl(aid, Api.Get_ImageUrl(WebContent), "image");
+                StoreImageUrl(aid, _api.Get_ImageUrl(WebContent), "image");
             }
             return result;
         }
@@ -141,7 +142,7 @@ namespace Emby.Plugins.AniSearch
 
             if (!string.IsNullOrEmpty(aid))
             {
-                var primary = Api.Get_ImageUrl(await _api.WebRequestAPI(Api.AniSearch_anime_link + aid, cancellationToken).ConfigureAwait(false));
+                var primary = _api.Get_ImageUrl(await _api.WebRequestAPI(Api.AniSearch_anime_link + aid, cancellationToken).ConfigureAwait(false));
                 list.Add(new RemoteImageInfo
                 {
                     ProviderName = Name,
