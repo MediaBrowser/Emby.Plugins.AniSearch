@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Emby.Anime
+namespace Emby.Plugins.AniSearch
 {
     public static class GenreHelper
     {

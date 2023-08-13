@@ -6,7 +6,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Emby.Anime;
 using MediaBrowser.Common.Net;
 using System.IO;
 using MediaBrowser.Model.Net;
