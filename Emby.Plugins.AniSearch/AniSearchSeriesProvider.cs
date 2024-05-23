@@ -21,7 +21,9 @@ namespace Emby.Plugins.AniSearch
         private readonly IApplicationPaths _paths;
         private readonly ILogger _log;
         public int Order => 7;
-        public string Name => "AniSearch";
+
+        public static string StaticName = "AniSearch";
+        public string Name => StaticName;
 
         private Api _api;
 

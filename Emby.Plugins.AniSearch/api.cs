@@ -52,7 +52,7 @@ namespace Emby.Plugins.AniSearch
                 Name = SelectName(WebContent, preferredLanguage)
             };
 
-            result.SearchProviderName = One_line_regex(new Regex("\"" + "Japanisch" + "\"" + @"> <strong>(.*?)<\/"), WebContent);
+            result.SearchProviderName = AniSearchSeriesProvider.StaticName;
             result.ImageUrl = Get_ImageUrl(WebContent);
             result.SetProviderId(ProviderNames.AniSearch, id);
             result.Overview = Get_Overview(WebContent);
@@ -77,7 +77,7 @@ namespace Emby.Plugins.AniSearch
                     return title;
                 }
             }
-            if (string.Equals(preferredLanguage, "de", StringComparison.OrdinalIgnoreCase))
+            if ((preferredLanguage ?? string.Empty).StartsWith("de", StringComparison.OrdinalIgnoreCase))
             {
                 var title = Get_title("de", WebContent);
                 if (!string.IsNullOrWhiteSpace(title))
@@ -85,7 +85,7 @@ namespace Emby.Plugins.AniSearch
                     return title;
                 }
             }
-            if (string.Equals(preferredLanguage, "ja", StringComparison.OrdinalIgnoreCase))
+            if ((preferredLanguage ?? string.Empty).StartsWith("ja", StringComparison.OrdinalIgnoreCase))
             {
                 var title = Get_title("jap", WebContent);
                 if (!string.IsNullOrWhiteSpace(title))
