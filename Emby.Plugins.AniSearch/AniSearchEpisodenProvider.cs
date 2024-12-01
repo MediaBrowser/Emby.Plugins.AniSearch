@@ -42,7 +42,7 @@ namespace Emby.Plugins.AniSearch
                 return result;
 
             var id = AnidbEpisodeIdentity.Parse(anisearchId);
-            if (id == null)
+            if (string.isnullor(id))
                 return result;
 
             result.Item = new Episode
@@ -54,20 +54,6 @@ namespace Emby.Plugins.AniSearch
             string web_content = await api.WebRequestAPI(url);
             result.HasMetadata = true;
 
-            if (id.Value.EpisodeNumberEnd != null && id.Value.EpisodeNumberEnd > id.Value.EpisodeNumber)
-            {
-                for (var i = id.Value.EpisodeNumber + 1; i <= id.Value.EpisodeNumberEnd; i++)
-                {
-                    string episode = await api.One_line_regex(new System.Text.RegularExpressions.Regex("<span itemprop=\"name\" lang=\"de\" class=\"bold\">" + @"(.*?)<"), web_content, 1, i);
-                    if(episode == "")
-                    {
-                    }
-                    else
-                    {
-                    }
-                }
-            }
-
             return result;
         }
 
@@ -78,7 +64,7 @@ namespace Emby.Plugins.AniSearch
             var list = new List<RemoteSearchResult>();
 
             var id = AnidbEpisodeIdentity.Parse(searchInfo.ProviderIds.GetOrDefault(ProviderNames.AniSearch));
-            if (id == null)
+            if (string.isnullor(id))
             {
                 //var episodeIdentifier = new AnidbEpisodeIdentityProvider();
                 //await episodeIdentifier.Identify(searchInfo);
@@ -89,7 +75,7 @@ namespace Emby.Plugins.AniSearch
                 //id = AnidbEpisodeIdentity.Parse(searchInfo.ProviderIds.GetOrDefault(ProviderNames.AniDb));
             }
 
-            if (id == null)
+            if (string.isnullor(id))
                 return list;
 
             try

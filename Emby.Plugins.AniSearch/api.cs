@@ -10,6 +10,8 @@ using MediaBrowser.Common.Net;
 using System.IO;
 using MediaBrowser.Model.Net;
 using MediaBrowser.Model.Logging;
+using System.Globalization;
+using System.Xml.Linq;
 
 namespace Emby.Plugins.AniSearch
 {
@@ -108,17 +110,17 @@ namespace Emby.Plugins.AniSearch
             switch (lang)
             {
                 case "en":
-                    return One_line_regex(new Regex("\"" + "Englisch" + "\"" + @"> <strong>(.*?)<\/"), WebContent);
+                    return One_line_regex(new Regex("\"" + "Englisch" + "\"" + @"> <strong>(.*?)<\/", RegexOptions.IgnoreCase), WebContent);
 
                 case "de":
-                    return One_line_regex(new Regex("\"" + "Deutsch" + "\"" + @"> <strong>(.*?)<\/"), WebContent);
+                    return One_line_regex(new Regex("\"" + "Deutsch" + "\"" + @"> <strong>(.*?)<\/", RegexOptions.IgnoreCase), WebContent);
 
                 case "jap":
-                    return One_line_regex(new Regex("<div class=\"grey\">" + @"(.*?)<\/"), One_line_regex(new Regex("\"" + "Englisch" + "\"" + @"> <strong>(.*?)<\/div"), WebContent));
+                    return One_line_regex(new Regex("<div class=\"grey\">" + @"(.*?)<\/", RegexOptions.IgnoreCase), One_line_regex(new Regex("\"" + "Englisch" + "\"" + @"> <strong>(.*?)<\/div", RegexOptions.IgnoreCase), WebContent));
 
                 //Default is jap_r
                 default:
-                    return One_line_regex(new Regex("\"" + "Japanisch" + "\"" + @"> <strong>(.*?)<\/"), WebContent);
+                    return One_line_regex(new Regex("\"" + "Japanisch" + "\"" + @"> <strong>(.*?)<\/", RegexOptions.IgnoreCase), WebContent);
             }
         }
 
@@ -130,13 +132,13 @@ namespace Emby.Plugins.AniSearch
         public List<string> Get_Genre(string WebContent)
         {
             List<string> result = new List<string>();
-            string Genres = One_line_regex(new Regex("<ul class=\"cloud\">" + @"(.*?)<\/ul>"), WebContent);
+            string Genres = One_line_regex(new Regex("<ul class=\"cloud\">" + @"(.*?)<\/ul>", RegexOptions.IgnoreCase), WebContent);
             int x = 0;
             string AniSearch_Genre = null;
-            while (AniSearch_Genre != "" && x < 100)
+            while (!string.IsNullOrEmpty(AniSearch_Genre) && x < 100)
             {
-                AniSearch_Genre = One_line_regex(new Regex(@"<li>(.*?)<\/li>"), Genres, 0, x);
-                AniSearch_Genre = One_line_regex(new Regex("\">" + @"(.*?)<\/a>"), AniSearch_Genre);
+                AniSearch_Genre = One_line_regex(new Regex(@"<li>(.*?)<\/li>", RegexOptions.IgnoreCase), Genres, 0, x);
+                AniSearch_Genre = One_line_regex(new Regex("\">" + @"(.*?)<\/a>", RegexOptions.IgnoreCase), AniSearch_Genre);
                 if (!string.IsNullOrEmpty(AniSearch_Genre))
                 {
                     result.Add(AniSearch_Genre);
@@ -153,7 +155,7 @@ namespace Emby.Plugins.AniSearch
         /// <returns></returns>
         public string Get_ImageUrl(string WebContent)
         {
-            return One_line_regex(new Regex("<img itemprop=\"image\" src=\"" + @"(.*?)" + "\""), WebContent);
+            return One_line_regex(new Regex("<img itemprop=\"image\" src=\"" + @"(.*?)" + "\"", RegexOptions.IgnoreCase), WebContent);
         }
 
         /// <summary>
@@ -163,7 +165,7 @@ namespace Emby.Plugins.AniSearch
         /// <returns></returns>
         public string Get_Rating(string WebContent)
         {
-            return One_line_regex(new Regex("<span itemprop=\"ratingValue\">" + @"(.*?)" + @"<\/span>"), WebContent);
+            return One_line_regex(new Regex("<span itemprop=\"ratingValue\">" + @"(.*?)" + @"<\/span>", RegexOptions.IgnoreCase), WebContent);
         }
 
         /// <summary>
@@ -173,7 +175,7 @@ namespace Emby.Plugins.AniSearch
         /// <returns></returns>
         public string Get_Overview(string WebContent)
         {
-            return Regex.Replace(One_line_regex(new Regex("<span itemprop=\"description\" lang=\"de\" id=\"desc-de\" class=\"desc-zz textblock\">" + @"(.*?)<\/span>"), WebContent), "<.*?>", String.Empty);
+            return Regex.Replace(One_line_regex(new Regex("<span itemprop=\"description\" lang=\"de\" id=\"desc-de\" class=\"desc-zz textblock\">" + @"(.*?)<\/span>", RegexOptions.IgnoreCase), WebContent), "<.*?>", String.Empty);
         }
 
         /// <summary>
@@ -192,26 +194,26 @@ namespace Emby.Plugins.AniSearch
             string result_text = null;
             string WebContent = await WebRequestAPI(string.Format(SearchLink, title), cancellationToken).ConfigureAwait(false);
             int x = 0;
-            while (result_text != "" && x < 100)
+            while (!string.IsNullOrEmpty(result_text) && x < 100)
             {
-                result_text = One_line_regex(new Regex("<th scope=\"row\" class=\"showpop\" data-width=\"200\"" + @".*?>(.*)<\/th>"), WebContent, 1, x);
+                result_text = One_line_regex(new Regex("<th scope=\"row\" class=\"showpop\" data-width=\"200\"" + @".*?>(.*)<\/th>", RegexOptions.IgnoreCase), WebContent, 1, x);
 
                 if (!string.IsNullOrEmpty(result_text))
                 {
                     //get id
                     int _x = 0;
                     string a_name = null;
-                    while (a_name != "" && _x < 100)
+                    while (!string.IsNullOrEmpty(a_name) && _x < 100)
                     {
-                        string id = One_line_regex(new Regex(@"anime\/(.*?),"), result_text);
-                        a_name = Regex.Replace(One_line_regex(new Regex(@"((<a|<d).*?>)(.*?)(<\/a>|<\/div>)"), result_text, 3, _x), "<.*?>", String.Empty);
-                        if (a_name != "")
+                        string id = One_line_regex(new Regex(@"anime\/(.*?),", RegexOptions.IgnoreCase), result_text);
+                        a_name = Regex.Replace(One_line_regex(new Regex(@"((<a|<d).*?>)(.*?)(<\/a>|<\/div>)", RegexOptions.IgnoreCase), result_text, 3, _x), "<.*?>", String.Empty);
+                        if (!string.IsNullOrEmpty(a_name))
                         {
                             if (Equals_check.Compare_strings(a_name, title))
                             {
                                 return id;
                             }
-                            if (Int32.TryParse(id, out int n))
+                            if (Int32.TryParse(id, NumberStyles.Integer, CultureInfo.InvariantCulture, out int n))
                             {
                                 anime_search_names.Add(a_name);
                                 anime_search_ids.Add(id);
@@ -239,26 +241,26 @@ namespace Emby.Plugins.AniSearch
             string result_text = null;
             string WebContent = await WebRequestAPI(string.Format(SearchLink, title), cancellationToken).ConfigureAwait(false);
             int x = 0;
-            while (result_text != "" && x < 100)
+            while (!string.IsNullOrEmpty(result_text) && x < 100)
             {
-                result_text = One_line_regex(new Regex("<th scope=\"row\" class=\"showpop\" data-width=\"200\"" + @".*?>(.*)<\/th>"), WebContent, 1, x);
-                if (result_text != "")
+                result_text = One_line_regex(new Regex("<th scope=\"row\" class=\"showpop\" data-width=\"200\"" + @".*?>(.*)<\/th>", RegexOptions.IgnoreCase), WebContent, 1, x);
+                if (!string.IsNullOrEmpty(result_text))
                 {
                     //get id
                     int _x = 0;
                     string a_name = null;
-                    while (a_name != "" && _x < 100)
+                    while (!string.IsNullOrEmpty(a_name) && _x < 100)
                     {
-                        string id = One_line_regex(new Regex(@"anime\/(.*?),"), result_text);
-                        a_name = Regex.Replace(One_line_regex(new Regex(@"((<a|<d).*?>)(.*?)(<\/a>|<\/div>)"), result_text, 3, _x), "<.*?>", String.Empty);
-                        if (a_name != "")
+                        string id = One_line_regex(new Regex(@"anime\/(.*?),", RegexOptions.IgnoreCase), result_text);
+                        a_name = Regex.Replace(One_line_regex(new Regex(@"((<a|<d).*?>)(.*?)(<\/a>|<\/div>)", RegexOptions.IgnoreCase), result_text, 3, _x), "<.*?>", String.Empty);
+                        if (!string.IsNullOrEmpty(a_name))
                         {
                             if (Equals_check.Compare_strings(a_name, title))
                             {
                                 result.Add(id);
                                 return result;
                             }
-                            if (Int32.TryParse(id, out int n))
+                            if (Int32.TryParse(id, NumberStyles.Integer, CultureInfo.InvariantCulture, out int n))
                             {
                                 result.Add(id);
                             }
