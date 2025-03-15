@@ -15,7 +15,7 @@ using MediaBrowser.Model.Configuration;
 
 namespace Emby.Plugins.AniSearch
 {
-    public class AniSearchSeriesProvider : IRemoteMetadataProvider<Series, SeriesInfo>, IHasOrder
+    public class AniSearchSeriesProvider : IRemoteMetadataProvider<Series, SeriesInfo>, IHasOrder, IHasSupportedExternalIdentifiers
     {
         private readonly IHttpClient _httpClient;
         private readonly IApplicationPaths _paths;
@@ -33,6 +33,14 @@ namespace Emby.Plugins.AniSearch
             _httpClient = httpClient;
             _paths = appPaths;
             _api = new Api(_log, httpClient);
+        }
+
+        public string[] GetSupportedExternalIdentifiers()
+        {
+            return new[] {
+
+                ProviderNames.AniSearch
+            };
         }
 
         public async Task<MetadataResult<Series>> GetMetadata(SeriesInfo info, CancellationToken cancellationToken)
